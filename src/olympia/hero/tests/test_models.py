@@ -51,7 +51,6 @@ class TestPrimaryHero(TestCase):
         )
         ph = PrimaryHero.objects.create(
             addon=addon,
-            promoted_group=promoted_group,
             gradient_color='#C60184',
             select_image=self.phi,
         )
@@ -74,7 +73,6 @@ class TestPrimaryHero(TestCase):
         )
         promotion.update(promoted_group=promoted_group)
         promotion.reload()
-        ph.update(promoted_group=promoted_group)
         ph.addon.approve_for_version(ph.addon.current_version)
         ph.reload()
         ph.enabled = True
@@ -93,7 +91,6 @@ class TestPrimaryHero(TestCase):
         )
         promotion.update(promoted_group=promoted_group)
         promotion.reload()
-        ph.update(promoted_group=promoted_group)
         ph.addon.approve_for_version(ph.addon.current_version)
         ph.reload()
         ph.enabled = True
@@ -126,7 +123,7 @@ class TestPrimaryHero(TestCase):
         PromotedAddonPromotion.objects.create(
             addon=addon, promoted_group=recommended_group, application_id=amo.FIREFOX.id
         )
-        ph = PrimaryHero.objects.create(addon=addon, promoted_group=recommended_group)
+        ph = PrimaryHero.objects.create(addon=addon)
         ph.addon.approve_for_version(ph.addon.current_version)
         ph.reload()
         assert not ph.enabled
@@ -156,7 +153,6 @@ class TestPrimaryHero(TestCase):
         )
         hero = PrimaryHero.objects.create(
             addon=addon,
-            promoted_group=promoted_group,
             gradient_color='#C60184',
             select_image=self.phi,
         )

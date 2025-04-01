@@ -72,6 +72,7 @@ class PromotedAddonPromotionAdmin(AMOModelAdmin):
     raw_id_fields = ('addon',)
     fields = ('addon', 'promoted_group', 'application_id')
     list_filter = ('promoted_group', 'application_id')
+    search_fields = ('addon__guid', 'addon__slug')
     inlines = (PromotedAddonVersionInline,)
     list_select_related = ('promoted_group',)
 
@@ -146,9 +147,8 @@ class PromotedAddonPromotionAdmin(AMOModelAdmin):
     def has_delete_permission(self, request, obj=None):
         shelf = getattr(obj, 'primaryhero', None)
         addon = getattr(obj, 'addon', None)
-        promoted_group = getattr(obj, 'promoted_group', None)
         qs = PrimaryHero.objects.filter(
-            addon=addon, promoted_group=promoted_group, enabled=True
+            addon=addon, enabled=True
         )
         if shelf and shelf.enabled and qs.count() == 1:
             return False

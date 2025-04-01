@@ -30,7 +30,6 @@ class PrimaryHeroAdmin(admin.ModelAdmin):
     fields = (
         'description',
         'addon',
-        'promoted_group',
         'select_image',
         'gradient_color',
         'is_external',

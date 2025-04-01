@@ -3,37 +3,45 @@
 from django.db import migrations, models
 import django.db.models.deletion
 
-def copy_over_promotions(apps, schema_editor):
-    PromotedGroup = apps.get_model('promoted', 'PromotedGroup')
+def primary_hero_addon_up(apps, schema_editor):
     Hero = apps.get_model('hero', 'PrimaryHero')
     for hero in Hero.objects.all():
         hero.addon = hero.promoted_addon.addon
-        hero.promoted_group = PromotedGroup.objects.get(group_id=hero.promoted_addon.group.id)
+        hero.promoted_addon = None
+        hero.save()
+
+def primary_hero_addon_down(apps, schema_editor):
+    Hero = apps.get_model('hero', 'PrimaryHero')
+    for hero in Hero.objects.all():
+        hero.promoted_addon = hero.addon.promotedaddon
         hero.save()
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('promoted', '0023_promotedgroup_alter_promotedaddon_group_id_and_more'),
         ('addons', '0054_update_default_locale_es_to_es-es'),
         ('hero', '0019_alter_secondaryheromodule_icon'),
     ]
 
     operations = [
+        # Make the promoted_addon field nullable
         migrations.AlterField(
             model_name='primaryhero',
             name='promoted_addon',
             field=models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='promoted.promotedaddon'),
         ),
+        # Add the addon field
         migrations.AddField(
             model_name='primaryhero',
             name='addon',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='addons.addon', null=True),
         ),
-        migrations.AddField(
+        # Migrate promoted_addon to addon
+        migrations.RunPython(primary_hero_addon_up, primary_hero_addon_down),
+        # Make the addon field non-nullable after populating the existing data
+        migrations.AlterField(
             model_name='primaryhero',
-            name='promoted_group',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='promoted.promotedgroup'),
+            name='addon',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='addons.addon', null=False),
         ),
-        migrations.RunPython(copy_over_promotions),
     ]

@@ -11,11 +11,12 @@ from django.templatetags.static import static
 from django.urls import Resolver404
 from django.utils.safestring import mark_safe
 
+from olympia.addons.models import Addon
 from olympia.amo.models import LongNameIndex, ModelBase
 from olympia.amo.reverse import resolve_with_trailing_slash, reverse
 from olympia.amo.utils import SafeStorage
 from olympia.constants.promoted import PROMOTED_GROUPS
-from olympia.promoted.models import Addon, PromotedGroup
+from olympia.promoted.models import Addon, PromotedAddon
 
 
 GRADIENT_START_COLOR = ('#20123A', 'color-ink-80')
@@ -174,11 +175,11 @@ class PrimaryHero(ModelBase):
         'HTML or special tags. Will be translated.',
     )
     enabled = models.BooleanField(db_index=True, default=False)
-
-    addon = models.ForeignKey(Addon, on_delete=models.CASCADE, null=False)
-    promoted_group = models.ForeignKey(
-        PromotedGroup, on_delete=models.CASCADE, null=True, blank=True
+    # TODO: promotedaddon; primaryhero refactor (Write PR)
+    promoted_addon = models.OneToOneField(
+        PromotedAddon, on_delete=models.CASCADE, null=True
     )
+    addon = models.ForeignKey(Addon, on_delete=models.CASCADE, null=False)
 
     is_external = models.BooleanField(default=False)
 
@@ -220,9 +221,8 @@ class PrimaryHero(ModelBase):
                 )
             elif not self.is_external:
                 can_add_to_primary = (
-                    self.promoted_group
-                    and self.promoted_group.can_primary_hero
-                    and self.addon.approved_applications_for(self.promoted_group)
+                    self.addon.promoted_groups().can_primary_hero
+                    and self.addon.approved_applications_for()
                 )
                 if not can_add_to_primary:
                     can_hero_groups = ', '.join(

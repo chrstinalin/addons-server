@@ -1,5 +1,12 @@
 import { Routes } from '@lit-labs/router';
-import { css, html, LitElement, nothing, type PropertyValues } from 'lit';
+import {
+  type CSSResultGroup,
+  css,
+  html,
+  LitElement,
+  nothing,
+  type PropertyValues,
+} from 'lit';
 import { customElement, property, query, state } from 'lit/decorators.js';
 import { BASE } from '../../../base';
 import { disableVersion } from '../../../data/queries';
@@ -36,7 +43,7 @@ type FlowStep = TimelineStep & { id: string };
 type FlowSection = TimelineSection & { steps: FlowStep[] };
 
 export abstract class SubmissionStep extends LitElement {
-  static styles = css`
+  static styles: CSSResultGroup = css`
     :host {
       display: flex;
       flex-direction: column;

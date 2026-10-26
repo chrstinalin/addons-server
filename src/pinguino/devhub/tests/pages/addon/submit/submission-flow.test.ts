@@ -79,22 +79,22 @@ async function mountFlow(path: string) {
   const host = await mount<TestRouter>('test-router');
   await host.router.goto(`/submit/${path}`);
   await settle(host);
-  const el = host.shadowRoot?.querySelector('addon-submission');
+  const el = host.shadowRoot?.querySelector('addon-submission') as LitElement;
   await settle(el);
   return ui(el);
 }
 
-function chooseFiles(input: Element, ...files: File[]) {
-  Object.assign(input, {
+function chooseFiles(input: Element | null, ...files: File[]) {
+  Object.assign(input as Element, {
     files,
-    clear: () => Object.assign(input, { files: [] }),
+    clear: () => Object.assign(input as Element, { files: [] }),
   });
-  input.dispatchEvent(new Event('change'));
+  input?.dispatchEvent(new Event('change'));
 }
 
-function pick(picker: Element, value: string) {
-  Object.assign(picker, { value });
-  picker.dispatchEvent(new Event('change'));
+function pick(picker: Element | null, value: string) {
+  Object.assign(picker as Element, { value });
+  picker?.dispatchEvent(new Event('change'));
 }
 
 function ui(el: LitElement) {

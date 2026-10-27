@@ -459,6 +459,10 @@ export async function patchVersion(
   });
 }
 
+export async function deleteVersion(slug: string, id: number): Promise<void> {
+  await apiFetch(versionPath(slug, id), { method: 'DELETE' });
+}
+
 export async function fetchVersions(
   slug: string,
   lang: string,
@@ -475,4 +479,9 @@ export async function fetchVersions(
     })}`,
   );
   return data.results ?? [];
+}
+
+export async function fetchAppVersions(app: string): Promise<string[]> {
+  const data = await apiFetch<{ versions: string[] }>(`/applications/${app}/`);
+  return data.versions;
 }

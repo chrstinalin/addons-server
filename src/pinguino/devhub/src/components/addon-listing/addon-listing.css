@@ -11,49 +11,6 @@ moz-page-nav {
   position: sticky;
   top: var(--space-medium);
 }
-.cards {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-large);
-  min-width: 0;
-}
-.card-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-small);
-  width: 100%;
-  margin-bottom: var(--space-xlarge);
-}
-.card-title {
-  display: flex;
-  align-items: center;
-  gap: var(--space-small);
-}
-.card-head h2 {
-  margin: 0;
-  font-size: var(--font-size-heading-medium);
-}
-.card-head .sub {
-  margin: var(--space-xxsmall) 0 0;
-  color: var(--text-color-deemphasized, GrayText);
-}
-dl {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xlarge);
-}
-.field dt {
-  color: var(--text-color-deemphasized, GrayText);
-  margin-bottom: var(--space-small);
-}
-.field dd {
-  margin: 0;
-}
-.muted {
-  color: var(--text-color-deemphasized, GrayText);
-}
 .categories {
   display: flex;
   flex-wrap: wrap;
@@ -85,16 +42,6 @@ dl {
 .url-slug {
   flex: 1;
   min-width: 0;
-}
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-large);
-}
-.card-actions {
-  display: flex;
-  gap: var(--space-small);
-  flex: none;
 }
 .cat-label {
   font-weight: 600;
@@ -149,13 +96,6 @@ dl {
 .author-edit moz-input-text,
 .author-edit .role-select {
   min-width: 0;
-}
-.menu-btn {
-  align-self: end;
-}
-.menu-btn::part(button) {
-  font-size: var(--font-size-large);
-  line-height: 1;
 }
 .pending {
   margin-top: var(--space-xlarge);

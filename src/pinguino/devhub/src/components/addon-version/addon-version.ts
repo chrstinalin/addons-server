@@ -9,13 +9,22 @@ import {
   versionsQuery,
 } from '../../data';
 import '../../foundations/badges';
+import './version-detail';
 
 @customElement('addon-version')
 export class AddonVersion extends LitElement {
   @property({ attribute: false }) addon!: Addon;
   @property() section?: string;
 
-  #versions = versionsQuery(this, () => this.addon?.slug ?? '');
+  #versions = versionsQuery(
+    this,
+    () => this.addon?.slug ?? '',
+    () => !this.#versionId,
+  );
+
+  get #versionId() {
+    return Number(this.section) || undefined;
+  }
 
   static styles = css`
     moz-page-header::part(heading) {
@@ -116,6 +125,13 @@ export class AddonVersion extends LitElement {
   }
 
   render() {
+    const versionId = this.#versionId;
+    if (versionId) {
+      return html`<version-detail
+        .addon=${this.addon}
+        .versionId=${versionId}
+      ></version-detail>`;
+    }
     const versions = this.#versions().data;
     if (!versions) return nothing;
     const current = this.addon.currentVersion;

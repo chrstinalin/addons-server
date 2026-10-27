@@ -79,6 +79,7 @@ from olympia.versions.models import (
     License,
     Version,
     VersionPreview,
+    VersionReviewerFlags,
 )
 
 
@@ -1634,6 +1635,23 @@ class TestDeveloperVersionSerializerOutput(TestVersionSerializerOutput):
         assert result['source'] == absolutify(
             reverse('downloads.source', args=(self.version.id,))
         )
+
+    def test_is_source_editable(self):
+        self.version = addon_factory().current_version
+        self.version.update(human_review_date=None)
+        assert self.serialize()['is_source_editable'] is True
+
+        self.version.update(human_review_date=datetime.now())
+        assert self.serialize()['is_source_editable'] is False
+
+        VersionReviewerFlags.objects.create(
+            version=self.version,
+            pending_rejection=datetime.now() + timedelta(days=7),
+            pending_rejection_by=user_factory(),
+            pending_content_rejection=False,
+        )
+        self.version.reload()
+        assert self.serialize()['is_source_editable'] is True
 
     def test_approval_notes(self):
         self.version = addon_factory().current_version

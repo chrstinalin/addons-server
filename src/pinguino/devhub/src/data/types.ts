@@ -97,6 +97,9 @@ export interface Version {
   source: string | null;
   edit_url: string;
   is_disabled: boolean;
+  // False once Mozilla has reviewed the version.
+  is_source_editable?: boolean;
+  compatibility?: Record<string, { min: string; max: string }>;
   license?: {
     id: number;
     is_custom: boolean;
@@ -104,6 +107,14 @@ export interface Version {
     url: string | null;
   } | null;
   reviewed?: string | null;
+}
+
+export interface VersionEdit {
+  release_notes?: string;
+  approval_notes?: string;
+  // Replaced wholesale: any app left out is dropped.
+  compatibility?: Record<string, { min?: string; max?: string }>;
+  is_disabled?: boolean;
 }
 
 // The subset of listing fields editable from the manage page's Listing Details

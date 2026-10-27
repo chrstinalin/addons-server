@@ -19,6 +19,14 @@ const MOUNT_RE = new RegExp(
 // Mirrors settings_base.py.
 export const MAX_UPLOAD_SIZE = 200 * 1000 * 1000;
 
+// Mirrors VALID_SOURCE_EXTENSIONS in versions/models.py.
+export const SOURCE_EXTENSIONS = '.zip,.tar.gz,.tgz,.tar.bz2';
+
+export const APP_NAMES: Record<string, string> = {
+  firefox: 'Firefox',
+  android: 'Firefox for Android',
+};
+
 export interface Mount {
   /** The app's base path, locale prefix included, without a trailing slash. */
   base: string;

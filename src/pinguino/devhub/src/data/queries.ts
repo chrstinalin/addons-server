@@ -10,8 +10,10 @@ import {
   addPreview,
   deleteAuthor,
   deletePreview,
+  deleteVersion,
   fetchAddons,
   fetchAgreement,
+  fetchAppVersions,
   fetchAuthors,
   fetchCategories,
   fetchEulaPolicy,
@@ -42,6 +44,7 @@ import type {
   EulaPolicyEdit,
   FileUpload,
   Version,
+  VersionEdit,
 } from './types';
 
 // Keys identify cache entries. The add-on list and a single add-on share one
@@ -55,6 +58,7 @@ export const queryKeys = {
   upload: (uuid: string) => ['upload', uuid] as const,
   version: (slug: string, id: number) => ['version', slug, id] as const,
   versions: (slug: string) => ['versions', slug] as const,
+  appVersions: (app: string | undefined) => ['app-versions', app] as const,
 };
 
 // The static category list rarely changes, so keep it for the session.
@@ -314,6 +318,21 @@ export async function createVersion(
   return version;
 }
 
+export function appVersionsQuery(
+  host: ReactiveControllerHost,
+  getApp: () => string | undefined,
+) {
+  return createQueryController(
+    host,
+    () => ({
+      queryKey: queryKeys.appVersions(getApp()),
+      queryFn: () => fetchAppVersions(getApp() ?? ''),
+      enabled: Boolean(getApp()),
+    }),
+    queryClient,
+  );
+}
+
 export function versionsQuery(
   host: ReactiveControllerHost,
   getSlug: () => string,
@@ -330,7 +349,42 @@ export function versionsQuery(
   );
 }
 
-async function _updateVersion(
+export async function updateVersion(
+  slug: string,
+  id: number,
+  edit: VersionEdit,
+  source?: File,
+) {
+  const hasEdit = Object.keys(edit).length > 0;
+  if (!hasEdit && !source) return;
+  if (hasEdit) {
+    const { release_notes, ...rest } = edit;
+    await patchAndCacheVersion(slug, id, {
+      ...rest,
+      ...(release_notes !== undefined && {
+        release_notes: { [LOCALE ?? 'en-US']: release_notes },
+      }),
+    });
+  }
+  if (source) {
+    await uploadVersionSource(slug, id, source);
+  }
+  void queryClient.invalidateQueries({ queryKey: queryKeys.addons });
+  await queryClient.invalidateQueries({ queryKey: queryKeys.versions(slug) });
+}
+
+export async function disableVersion(slug: string, id: number) {
+  await updateVersion(slug, id, { is_disabled: true });
+}
+
+export async function removeVersion(slug: string, id: number) {
+  await deleteVersion(slug, id);
+  queryClient.removeQueries({ queryKey: queryKeys.version(slug, id) });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.addons });
+  await queryClient.invalidateQueries({ queryKey: queryKeys.versions(slug) });
+}
+
+async function patchAndCacheVersion(
   slug: string,
   id: number,
   body: FormData | object,
@@ -340,11 +394,6 @@ async function _updateVersion(
   return version;
 }
 
-export async function disableVersion(slug: string, id: number) {
-  await _updateVersion(slug, id, { is_disabled: true });
-  await queryClient.invalidateQueries({ queryKey: queryKeys.addons });
-}
-
 export async function uploadVersionSource(
   slug: string,
   id: number,
@@ -352,7 +401,7 @@ export async function uploadVersionSource(
 ) {
   const body = new FormData();
   body.append('source', file);
-  await _updateVersion(slug, id, body);
+  await patchAndCacheVersion(slug, id, body);
 }
 
 export async function uploadVersionNotes(
@@ -362,7 +411,7 @@ export async function uploadVersionNotes(
   reviewerNotes?: string,
   langCode: string = LOCALE ?? 'en-US',
 ) {
-  await _updateVersion(slug, id, {
+  await patchAndCacheVersion(slug, id, {
     approval_notes: reviewerNotes ?? '',
     ...(releaseNotes && { release_notes: { [langCode]: releaseNotes } }),
   });

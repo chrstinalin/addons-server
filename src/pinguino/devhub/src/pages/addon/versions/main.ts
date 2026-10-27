@@ -4,6 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 import { addonQuery } from '../../../data';
 
 import '../../../components/not-found';
+import '../templates/devhub-addon';
 import './submit/main';
 
 @customElement('version-routes')
@@ -17,6 +18,15 @@ class VersionRoutes extends LitElement {
       path: 'submit/*',
       render: () =>
         html`<version-submit-routes .slug=${this.slug}></version-submit-routes>`,
+    },
+    {
+      path: ':section(\\d+)',
+      render: ({ section }) =>
+        html`<devhub-addon
+          .slug=${this.slug}
+          tab="versions"
+          .section=${section ?? ''}
+        ></devhub-addon>`,
     },
   ]);
 

@@ -4,9 +4,7 @@ import { uploadVersionSource, versionQuery } from '../../../../data/queries';
 import { errorBar, errorMessage, SubmissionStep } from '../submission-flow';
 import '../../../../components/not-found';
 import '../../../../foundations/components/message-bar';
-import { MAX_UPLOAD_SIZE } from '../../../../base';
-
-const SOURCE_EXTENSIONS = '.zip,.tar.gz,.tgz,.tar.bz2';
+import { MAX_UPLOAD_SIZE, SOURCE_EXTENSIONS } from '../../../../base';
 
 const TRANSFORM_TOOLS = [
   'Code minifiers or obfuscators',

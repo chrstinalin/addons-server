@@ -39,20 +39,63 @@ describe('devhub-addon', () => {
     expect(root.querySelector('addon-listing')).not.toBeNull();
   });
 
-  it('renders a stub (not the listing) for a non-edit tab', async () => {
+  it('renders a stub (not the listing) for an unfinished tab', async () => {
     queryClient.setQueryData(queryKeys.addons, [addon]);
     const el = await mount<DevhubAddon>('devhub-addon', {
       slug: 'ad-blocker',
-      tab: 'versions',
+      tab: 'statistics',
     });
     await settle(el);
     const root = el.shadowRoot as ShadowRoot;
 
     expect(
       root.querySelector('moz-segmented-control')?.getAttribute('value'),
-    ).toBe('versions');
+    ).toBe('statistics');
     expect(root.querySelector('addon-listing')).toBeNull();
-    expect(root.querySelector('.stub')?.textContent).toContain('Versions');
+    expect(root.querySelector('.stub')?.textContent).toContain('Statistics');
+  });
+
+  it('renders the versions list on the versions tab', async () => {
+    queryClient.setQueryData(queryKeys.addons, [addon]);
+    queryClient.setQueryData(queryKeys.versions('adblock'), []);
+    const el = await mount<DevhubAddon>('devhub-addon', {
+      slug: 'adblock',
+      tab: 'versions',
+    });
+    await settle(el);
+    const root = el.shadowRoot as ShadowRoot;
+
+    const versions = root.querySelector('addon-version');
+    expect(versions).not.toBeNull();
+    expect(versions?.shadowRoot?.querySelector('version-detail')).toBeNull();
+  });
+
+  it('shows the current version in a dedicated section', async () => {
+    const current = {
+      id: 7,
+      version: '3.2.1',
+      channel: 'listed',
+      file: { id: 1, url: '', size: 0, status: 'public' },
+      release_notes: null,
+      approval_notes: '',
+      source: null,
+      edit_url: '',
+      is_disabled: false,
+    } as const;
+    queryClient.setQueryData(queryKeys.addons, [
+      { ...addon, currentVersion: current },
+    ]);
+    queryClient.setQueryData(queryKeys.versions('ad-blocker'), []);
+    const el = await mount<DevhubAddon>('devhub-addon', {
+      slug: 'ad-blocker',
+      tab: 'versions',
+    });
+    await settle(el);
+    const list = el.shadowRoot
+      ?.querySelector('addon-version')
+      ?.shadowRoot?.querySelector('.version-list.current');
+
+    expect(list?.querySelector('.version-number')?.textContent).toBe('3.2.1');
   });
 
   it('selecting a tab navigates to its sub-URL', async () => {

@@ -20,6 +20,7 @@ import {
   fetchUpdates,
   fetchUpload,
   fetchVersion,
+  fetchVersions,
   patchAddon,
   patchAuthor,
   patchEulaPolicy,
@@ -53,6 +54,7 @@ export const queryKeys = {
   categories: ['categories'] as const,
   upload: (uuid: string) => ['upload', uuid] as const,
   version: (slug: string, id: number) => ['version', slug, id] as const,
+  versions: (slug: string) => ['versions', slug] as const,
 };
 
 // The static category list rarely changes, so keep it for the session.
@@ -310,6 +312,22 @@ export async function createVersion(
   queryClient.setQueryData(queryKeys.version(slug, version.id), version);
   await queryClient.invalidateQueries({ queryKey: queryKeys.upload(uuid) });
   return version;
+}
+
+export function versionsQuery(
+  host: ReactiveControllerHost,
+  getSlug: () => string,
+  getEnabled: () => boolean = () => true,
+) {
+  return createQueryController(
+    host,
+    () => ({
+      queryKey: queryKeys.versions(getSlug()),
+      queryFn: () => fetchVersions(getSlug(), LOCALE ?? 'en-US'),
+      enabled: Boolean(getSlug()) && getEnabled(),
+    }),
+    queryClient,
+  );
 }
 
 async function _updateVersion(

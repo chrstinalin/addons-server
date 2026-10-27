@@ -39,6 +39,8 @@ const VERSION: Version = {
   release_notes: null,
   approval_notes: '',
   source: null,
+  edit_url: '',
+  is_disabled: false,
 };
 
 const makeUpload = (args: Partial<FileUpload> = {}): FileUpload => ({

@@ -18,6 +18,7 @@ import {
   postVersion,
 } from '../../src/data/api';
 import { ADDON_STATUS, VERSION_STATUS } from '../../src/data/statuses';
+import type { Version } from '../../src/data/types';
 
 function mockJson(payload: unknown) {
   vi.stubGlobal(
@@ -38,7 +39,7 @@ describe('mapAddon', () => {
       type: 'statictheme',
       status: 'public',
       last_updated: '2025-05-14T10:00:00Z',
-      current_version: { version: '3.2.1' },
+      current_version: { version: '3.2.1' } as Version,
       previews: [{ image_url: 'https://cdn/preview.png' }],
       channels: ['listed'],
     });
@@ -111,7 +112,7 @@ describe('mapAddon', () => {
       current_version: {
         version: '1.0',
         license: { name: { 'en-US': 'MPL 2.0' } },
-      },
+      } as unknown as Version,
       channels: ['listed'],
     });
 
